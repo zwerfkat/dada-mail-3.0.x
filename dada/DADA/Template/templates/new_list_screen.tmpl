@@ -351,6 +351,43 @@
   <!-- wrap="virtual" --> 
   <textarea name="physical_address" cols="50" rows="5"><!-- tmpl_var name="physical_address" escape="HTML"--></textarea>
  </p>
+
+</fieldset> 
+
+
+<!-- tmpl_if lists_exist --> 
+
+	<fieldset>
+
+		<legend>Advanced Options</legend>
+
+	<table> 
+		<tr> 
+			<td> 
+				<p>
+					<input type="checkbox" name="clone_settings" id="clone_settings" value="1"  />
+				</p>
+			</td>
+
+			<td>
+				<p>
+					<label for="clone_settings">
+						Clone settings from this list: <!-- tmpl_var list_popup_menu -->
+					</label>
+				</p> 
+			</td> 
+		</tr> 
+	</table> 
+
+			
+
+	</fieldset> 
+
+<!-- /tmpl_if --> 
+
+
+
+
  <p style="text-align:center">
   <input type="submit" class="processing" value="    Create Your Mailing List    " />
  </p>

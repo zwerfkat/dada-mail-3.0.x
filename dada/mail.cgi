@@ -6795,6 +6795,17 @@ sub new_list {
                 $err_word = 'were' if $errors > 1; 
             }
             
+            require DADA::Template::Widgets;
+            
+			my @available_lists = DADA::App::Guts::available_lists(); 
+			my $lists_exist = $#available_lists + 1;  
+			
+			my $list_popup_menu = DADA::Template::Widgets::list_popup_menu(
+										-show_hidden      => 1,
+										-name             => 'clone_settings_from_this_list',
+										-empty_list_check => 1,
+									); 
+									
             
             print(list_template(-Part       => "header",
                            -Title      => "Create a New List",
@@ -6838,6 +6849,8 @@ sub new_list {
                                                                 physical_address                  => $physical_address, 
                                                                 flags_list_name_bad_characters    => $flags->{list_name_bad_characters},
                                                                 
+																lists_exist                       => $lists_exist, 
+																list_popup_menu                   => $list_popup_menu, 
                                                                 }, 
                                                     });
             
@@ -6889,7 +6902,24 @@ sub new_list {
                            );
             
             require DADA::MailingList; 
-            my $ls = DADA::MailingList::Create({%new_info}); 
+			my $ls; 
+			if($q->param('clone_settings') == 1){ 				
+            	$ls = DADA::MailingList::Create(
+						{
+							-list     => $list, 
+							-settings => $new_info, 
+							-clone    => xss_filter($q->param('clone_settings_from_this_list')), 
+						}
+					); 
+            }
+            else { 
+            	$ls = DADA::MailingList::Create(
+						{
+							-list     => $list, 
+							-settings => $new_info, 
+						}
+					);
+			}
                         
             my $status; 
             
