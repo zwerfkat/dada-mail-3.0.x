@@ -1495,7 +1495,8 @@ sub check_list_setup {
 	my %new_list_errors = (); 
 	my $list_errors     = 0;
     my $fields = $args{-fields}; 
-    
+
+   
 	if($fields->{list} eq ""){ 
 		$list_errors++;
 		$new_list_errors{list} = 1;
@@ -1509,6 +1510,7 @@ sub check_list_setup {
 	}else{ 
 		$new_list_errors{list_name} = 0;
 	}
+
 	
 	if($fields->{list_name} =~ m/(\>|\<|\")/){ 
 		$list_errors++;
@@ -1630,7 +1632,6 @@ sub check_list_setup {
 	}else{ 
 		$new_list_errors{physical_address} = 0;
 	}
-	
 	
 	return ($list_errors, \%new_list_errors);
 }

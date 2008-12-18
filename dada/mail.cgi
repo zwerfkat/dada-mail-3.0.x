@@ -6854,7 +6854,9 @@ sub new_list {
                                                                 }, 
                                                     });
             
-            print(list_template(-Part       => "footer"));
+            print list_template(
+				  	-Part => "footer"
+				   );
     
         }else{
             user_error(-List => $list, -Error => "invalid_root_password");
@@ -6867,8 +6869,10 @@ sub new_list {
         $list =~ s/\s+$//; 
         $list =~ s/ /_/g;
 
-        my $list_exists = check_if_list_exists(-List => $list, -dbi_handle => $dbi_handle);
-        my ($list_errors,$flags) = check_list_setup(-fields => {list             => $list, 
+        my $list_exists = check_if_list_exists(-List => $list);
+        my ($list_errors,$flags) = check_list_setup(
+										-fields => {
+											list             => $list, 
                                                                 list_name        => $list_name, 
                                                                 list_owner_email => $list_owner_email, 
                                                                 password         => $password, 
@@ -6881,10 +6885,16 @@ sub new_list {
         
         if($list_errors >= 1){
             undef($process);
-            new_list($list_errors, $flags);
+            new_list(
+				$list_errors, 
+				$flags
+			);
         
         }elsif($list_exists >= 1){
-            user_error(-List => $list, -Error => "list_already_exists");
+            user_error(
+				-List  => $list, 
+				-Error => "list_already_exists"
+			);
             return; 
         }else{
         
@@ -6892,14 +6902,16 @@ sub new_list {
             $list_owner_email  = lc_email($list_owner_email);
             $password          = DADA::Security::Password::encrypt_passwd($password); 
             
-            my %new_info = (list             =>   $list, 
+            my $new_info = {
+            #list             =>   $list, 
                             list_owner_email =>   $list_owner_email,
                             list_name        =>   $list_name,
                             password         =>   $password,
                             info             =>   $info, 
                             privacy_policy   =>   $privacy_policy,
                             physical_address =>   $physical_address, 
-                           );
+                           };
+            
             
             require DADA::MailingList; 
 			my $ls; 
