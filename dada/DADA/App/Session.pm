@@ -30,21 +30,16 @@ sub _init  {
 	   $self->{can_use_cgi_session} = $self->can_use_cgi_session(); 
 	   $self->{can_use_data_dumper} = $self->can_use_data_dumper(); 
 	
-	if($DADA::Config::SESSION_DB_TYPE =~ /SQL/){ 
-        if(!$dbi_obj){ 
+	if($DADA::Config::SESSION_DB_TYPE =~ m/SQL/){ 
             require DADA::App::DBIHandle; 
-            $dbi_obj = DADA::App::DBIHandle->new; 
-            $self->{dbh} = $dbi_obj->dbh_obj; 
-        }else{ 
-            $self->{dbh} = $dbi_obj->dbh_obj; 
-        }
-	}
+            $self->{dbh} = DADA::App::DBIHandle->new->dbh_obj; 
+  	}
 	
 	# http://search.cpan.org/~markstos/CGI-Session/lib/CGI/Session.pm
 
 	if($DADA::Config::SESSION_DB_TYPE =~ m/SQL/i){ 
 		
-		if($DADA::Config::SESSION_DB_TYPE eq 'PostgreSQL'){ 
+        if ( $DADA::Config::SQL_PARAMS{dbtype} eq 'Pg' ) {
 	
 		   # http://search.cpan.org/~markstos/CGI-Session/lib/CGI/Session/Driver/postgresql.pm	
 		   $self->{dsn}      = 'driver:PostgreSQL';
@@ -54,8 +49,8 @@ sub _init  {
 		                        TableName => $DADA::Config::SQL_PARAMS{session_table},
 	                        
 		                       };
-	
-		}elsif($DADA::Config::SESSION_DB_TYPE eq 'MySQL'){ 
+		}
+        elsif ( $DADA::Config::SQL_PARAMS{dbtype} eq 'mysql' ) {
 	
 	       # http://search.cpan.org/~markstos/CGI-Session/lib/CGI/Session/Driver/mysql.pm
 	 	   $self->{dsn}      = 'driver:mysql';
@@ -65,8 +60,8 @@ sub _init  {
 		                         TableName  => $DADA::Config::SQL_PARAMS{session_table},
 
 		                         };
-		
-		}elsif($DADA::Config::SESSION_DB_TYPE eq 'SQLite'){ 
+		}
+		elsif ( $DADA::Config::SQL_PARAMS{dbtype} eq 'SQLite' ) {
 
 	      # http://search.cpan.org/~bmoyles/CGI-Session-SQLite/SQLite.pm
 	        $self->{dsn}      = 'driver:SQLite:'; # . ':' . $DADA::Config::FILES . '/' . $database;;
@@ -79,6 +74,7 @@ sub _init  {
 
 		    $CGI::Session::SQLite::TABLE_NAME = 'dada_sessions';
 		}
+		
 	}
 	elsif($DADA::Config::SESSION_DB_TYPE eq 'Db'){ 
 
@@ -447,8 +443,13 @@ sub check_session_list_security {
     if($problems){ 
     	
     	if($args{-manual_override} == 1){ 
-    		return ($args{-Admin_List}, $root_logged_in, 0);
-    	}else{ 
+    		return (
+				$args{-Admin_List}, 
+				$root_logged_in, 
+				0
+			);
+    	}
+		else { 
     	
 		# DEV: This is like, the most annoying thing in the whole wide world: 
     	# If it's CGI::Session, let's ditch the session cookie...
@@ -482,10 +483,15 @@ sub check_session_list_security {
 		$self->{can_use_data_dumper} == 1
 		){ 
             $session->flush();
-            undef $session;      
+            undef $session;  
+            
         }
         
-   		return ($args{-Admin_List}, $root_logged_in, 1);
+   		return (
+				$args{-Admin_List}, 
+				$root_logged_in, 
+				1
+				);
    	}
 
 }

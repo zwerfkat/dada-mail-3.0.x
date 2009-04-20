@@ -1537,7 +1537,7 @@ sub cgi_scorecard {
             # javascript_presubmit => 'last_minute_javascript()',
             
             
-            debug => 1,
+            #debug => 1,
         );
     
     }
@@ -1989,6 +1989,16 @@ sub cl_main {
 	}elsif(defined($version)){ 
 		&version(); 
 	}
+	
+	if(!$Plugin_Config->{Server} ||
+	   !$Plugin_Config->{Username} || 
+       !$Plugin_Config->{Password}
+	){ 
+		print "The Server Username and/password haven't been filled out, stopping." 
+		    if $verbose;		
+			return;
+	}
+	
 	
 	print "Making POP3 Connection...\n" 
 	    if $verbose; 
@@ -3756,7 +3766,7 @@ sub remove_bounces {
                             	Subject => $Email_Unsubscribed_Because_Of_Bouncing_Subject, 
                         	},
 							-body      => $Email_Unsubscribed_Because_Of_Bouncing_Message, 
-							-tmpl_vars => { 
+							-tmpl_params => { 
 								-list_settings_vars_param => { 
 										list => $list,
 								}

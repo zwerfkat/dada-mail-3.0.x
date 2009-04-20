@@ -3193,8 +3193,6 @@ if($any_subscribers != 0){
 
 print"</p>";
  
-
-$DADA::Config::SHOW_EMAIL_LIST = 0; 
 my ($everyone, $domains_ref, $count_services_ref) = $lh->list_option_form(-List => $list, -In_Order => $DADA::Config::LIST_IN_ORDER);
 
 if($DADA::Config::SHOW_DOMAIN_TABLE  == 1) { 
@@ -3845,6 +3843,7 @@ sub add_email {
 							type_isa_list                          => ($type eq 'list') ? 1 : 0, 
 							type                                   => $type, 
 							type_title                             => $type_title,
+							'list_settings.enable_mass_subscribe'  => $li->{enable_mass_subscribe}, 
 						},
 					}
 				);
@@ -3862,6 +3861,10 @@ sub add_email {
 		}
 		else { 
     
+			if($li->{enable_mass_subscribe} != 1){ 
+				die "Mass Subscribing via the List Control Panel has been disabled."; 
+			}
+			
 	        my @address         = $q->param("address"); 
 	        my $new_email_count = 0; 
 
@@ -6012,11 +6015,13 @@ sub list_cp_options {
    }else{ 
 
 
-       my $enable_fckeditor = xss_filter($q->param('enable_fckeditor')) || 0;
-      
+       my $enable_fckeditor 	 = xss_filter($q->param('enable_fckeditor'))      || 0;
+       my $enable_mass_subscribe = xss_filter($q->param('enable_mass_subscribe')) || 0; 
+
        $ls->save(
 			{
-				enable_fckeditor => $enable_fckeditor, 
+				enable_fckeditor	  => $enable_fckeditor, 
+				enable_mass_subscribe => $enable_mass_subscribe, 
  			}
 		);
 

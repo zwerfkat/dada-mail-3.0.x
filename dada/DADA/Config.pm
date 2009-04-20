@@ -180,12 +180,20 @@ $PROGRAM_URL ='http://www.changetoyoursite.com/cgi-bin/dada/mail.cgi';
 
 
 # This variable is talked about in length later in this file. 
-# 
 $PROGRAM_CONFIG_FILE_DIR = 'auto'; 
-#------------------
-#leave this alone | 
- _config_import();
-#------------------
+
+#
+#
+#
+#
+#
+#
+#
+#--------------------------------#
+# Leave the below line, alone!
+ _config_import(); # Leave alone! 
+# Leave the above line, alone!
+#--------------------------------#
 
 =pod
 
@@ -2179,25 +2187,8 @@ through the list control panel.
 
 $MAILOUT_STALE_AFTER  ||= 86400;
 
-=pod
-
-=head2 $SHOW_EMAIL_LIST
-
-Customize the "View List" Screen in the Administration Area:
-You can turn off and on many of the features in the "View List" 
-administration area. If lists get really large, it may take some 
-time for this page to load...and some people have reported that the 
-screen won't load at all. The main reason for this is the scroll 
-box that holds a list of all the subscribed people. Not only does 
-it take time to sort through the list in alphabetical order and 
-then print all the addresses out, it's also a huge burden for the 
-browser to render a select box that large. It's not much help 
-anyways to have a select box holding 10,000 email addresses. You 
-can stop this select box from being shown by editing the below 
-variable to '0'.
-
-=cut
-
+# This variable isn't actually used and is only here so scripts relying on it, 
+# don't break. 
 $SHOW_EMAIL_LIST ||= 1;
 
 =pod
@@ -4023,6 +4014,7 @@ encrypted.
 
 # List CP -> Options
 	enable_fckeditor                => 1, 
+	enable_mass_subscribe           => 1, 
 
     
 
@@ -4363,8 +4355,8 @@ and to say that you've got the freshest tools on the Web.
 
 
 
-$VERSION = 3.0.1; 
-$VER     = '3.0.1';
+$VERSION = 3.0.3; 
+$VER     = '3.0.3 Stable';
 
 #
 #
@@ -4578,12 +4570,18 @@ may not work. Instead, try setting it to '2'.
 
 sub _config_import { 
 
+	# There's no user-servicable parts in the subroutine, so don't make any changes, 
+	# unless you're customizing Dada Mail or debugging something interesting. 
+	#
 	if(exists($ENV{NO_DADA_MAIL_CONFIG_IMPORT})){ 
 			if($ENV{NO_DADA_MAIL_CONFIG_IMPORT} == 1){ 
 				return;
 			} 
 	}
 	
+	# Keep this as, 'http://www.changetoyoursite.com/cgi-bin/dada/mail.cgi'
+	# What we're doing is, seeing if you've actually changed the variable from
+	# it's default, and if not, we take a best guess. 
 	if($PROGRAM_URL eq 'http://www.changetoyoursite.com/cgi-bin/dada/mail.cgi'){ 
 		require CGI; 
 		$PROGRAM_URL = CGI::url(); 
@@ -4624,8 +4622,9 @@ sub _config_import {
 		$conf =~ m/(.*)/ms;
 		$conf = $1;	
 		eval  $conf;
-		die "$PROGRAM_NAME $VER ERROR - Outside config file '$CONFIG_FILE' contains errors:\n\n $@ \n\n" if ($@);
-	
+		if ($@) { 
+			die "$PROGRAM_NAME $VER ERROR - Outside config file '$CONFIG_FILE' contains errors:\n\n$@\n\n";
+		}
 		if($PROGRAM_CONFIG_FILE_DIR eq 'auto') { 
 			if(! defined $PROGRAM_ERROR_LOG){ 
 				$PROGRAM_ERROR_LOG = $LOGS . '/errors.txt'; 

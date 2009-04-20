@@ -718,7 +718,7 @@ sub send_url_email {
                     my $msg_id = DADA::App::Guts::message_id(); 
                     
                     if($q->param('back_date') == 1){ 
-                        $msg_id = backdated_msg_id({-cgi_obj => $q}); 
+                        $msg_id = $self->backdated_msg_id({-cgi_obj => $q}); 
                     }
                     
                     # time  + random number + sender, woot!
@@ -861,28 +861,29 @@ sub list_invite {
 
     }elsif($process =~ m/submit/i){ 
  
-       # add these to a special 'invitation' list. we'll clear this list later. 
-        my @address         = $q->param("address"); 
-        #my $new_email_count = 0; 
+       if($process !~ m/test/i) {  
+				
+	       # add these to a special 'invitation' list. we'll clear this list later. 
+	        my @address         = $q->param("address"); 
+	        foreach my $a(@address){ 
+	           	my $info   = $lh->csv_to_cds($a); 
+	            $lh->add_subscriber(
+	                { 
+	                    -email         => $info->{email}, 
+	                    -fields        => $info->{fields},
+	                    -type          => 'invitelist', 
+	                }
+	            ); 
+	            $lh->add_subscriber(
+	                { 
+	                    -email         => $info->{email}, 
+	                    -fields        => $info->{fields},
+						-type          => 'sub_confirm_list', 
+	                }
+	            );
 
-        foreach my $a(@address){ 
-           	my $info   = $lh->csv_to_cds($a); 
-            $lh->add_subscriber(
-                { 
-                    -email         => $info->{email}, 
-                    -fields        => $info->{fields},
-                    -type          => 'invitelist', 
-                }
-            ); 
-            $lh->add_subscriber(
-                { 
-                    -email         => $info->{email}, 
-                    -fields        => $info->{fields},
-					-type          => 'sub_confirm_list', 
-                }
-            );
-
- 		}
+	 		}
+		}
                                               
         
 		# DEV: Headers.  Ugh, remember this is in, "Send a Webpage" as well. 	
