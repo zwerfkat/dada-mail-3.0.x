@@ -89,9 +89,19 @@ sub Create {
             }
         }
         %{ $args->{ -settings } } = ( %to_clone, %{ $args->{ -settings } } );
+
+
+		    foreach(keys %to_clone){
+		        if(! exists($DADA::Config::LIST_SETUP_DEFAULTS{$_})){
+		            warn "Skipping setting: $_ in clone.";
+		                 delete( $to_clone{$_} );
+		        }
+		    }
     }
 
+
     $ls->save( $args->{ -settings } );
+
     
 	# This is sort of a hack, so that the available_lists() thingy is up to date: 
 	# 
