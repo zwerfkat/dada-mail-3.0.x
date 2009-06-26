@@ -943,7 +943,9 @@ sub start {
 			foreach my $msgnum (sort { $a <=> $b } keys %$msgnums) {
 			
 			    $local_msg_viewed++;
-			    print "\tMessage Size: " . $msgnums->{$msgnum} .  "\n";
+			    print "\tMessage Size: " . $msgnums->{$msgnum} .  "\n"
+					if $verbose; 
+					
 			 	if($msgnums->{$msgnum} > $Plugin_Config->{Max_Size_Of_Any_Message}){ 
 			    
 			        print "\t\tWarning! Message size ( " . $msgnums->{$msgnum} . " ) is larger than the maximum size allowed ( " . $Plugin_Config->{Max_Size_Of_Any_Message} . " )\n"
@@ -2233,16 +2235,24 @@ sub send_msg_not_from_subscriber {
 		}
 
 	if($from_address && $from_address ne ''){ 
+	
+		require DADA::MailingList::Settings; 
+		my $ls = DADA::MailingList::Settings->new({-list => $list});
+		if($from_address eq $ls->param('discussion_pop_email')) {
+			warn "Message is from List Email ($from_address)? Not sending, 'not_allowed_to_post_message' so to not send message back to list!" ;
+		}
+		else {
+			
 			require DADA::App::Messages; 
 			DADA::App::Messages::send_not_allowed_to_post_message(
 				{
 					-list       => $list, 
 					-email      => $from_address,	
 					-attachment => $entity->as_string, 
-				
+			
 				},
 			); 
-			
+		}
 	}else{ 
 		warn "Problem with send_msg_not_from_subscriber! There's no address to send to?: " . $rough_from;
 	}
@@ -2258,6 +2268,8 @@ sub send_invalid_msgs_to_owner {
 	my $list   = shift; 
 	my $msg    = shift; 
 	my $entity = $parser->parse_data($msg);
+	
+	require DADA::App::Messages; 
 	
 	my $rough_from = $entity->head->get('From', 0); 
 	my $from_address;
@@ -2286,8 +2298,6 @@ sub send_invalid_msgs_to_owner {
 
 		my %msg_headers = DADA::App::Messages::_mime_headers_from_string($reply->stringify_header); 
 		
-		
-		require DADA::App::Messages; 
 		DADA::App::Messages::send_generic_email(
 			{
 				-list                     => $list, 
